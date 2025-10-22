@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <title>CRM — Объект (OLX)</title>
+  <style>
+    body{font-family:Arial,Helvetica,sans-serif;margin:20px;background:#f7f8fa;color:#0f172a}
+    h1{margin:0 0 16px}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+    .card{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:16px}
+    .row{display:grid;grid-template-columns:180px 1fr;align-items:center;gap:10px;margin:6px 0}
+    label{font-size:13px;color:#334155}
+    input,select,textarea{width:100%;padding:8px 10px;border:1px solid #cbd5e1;border-radius:8px;background:#fff}
+    textarea{min-height:80px}
+    .muted{color:#64748b;font-size:12px}
+    .actions{margin-top:16px}
+    button{padding:10px 14px;border:0;border-radius:10px;background:#2563eb;color:#fff;cursor:pointer}
+    .popup{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:1000}
+    .popup-content{background:#fff;width:900px;max-width:92vw;margin:5% auto;padding:20px;border-radius:12px;position:relative;max-height:90%;overflow:auto;white-space:pre-wrap}
+    .closeBtn{position:absolute;top:10px;right:16px;font-size:26px;cursor:pointer}
+    pre{white-space:pre-wrap}
+  </style>
+</head>
+<body>
+  <h1>Форма объекта (под OLX)</h1>
+
+  <div class="grid">
+    <!-- Левая колонка -->
+    <div class="card">
+      <div class="row"><label>Тип объекта</label>
+        <select id="ObjType">
+          <option>Квартира</option>
+          <option>Часть квартиры</option>
+          <option>Комната</option>
+        </select>
+      </div>
+      <div class="row"><label>Аренда / продажа</label>
+        <select id="ObjDealType">
+          <option>Продажа</option>
+          <option>Аренда</option>
+        </select>
+      </div>
+      <div class="row"><label>Комнат</label><input id="ObjRooms" type="number" value="3"></div>
+
+      <div class="row"><label>Город</label>
+        <select id="ObjCity">
+          <option>Харьков</option>
+          <option>Киев</option>
+          <option>Одесса</option>
+        </select>
+      </div>
+
+      <!-- ✅ Адм. район — выпадающий список -->
+      <div class="row"><label>Адм. район</label>
+        <select id="ObjAdmDistrict">
+          <option value="">Выберите район...</option>
+            <option>Шевченківський</option>
+            <option>Салтівський</option>
+            <option>Київський</option>
+            <option>Слобідський</option>
+            <option>Основ'янський</option>
+            <option>Холодногірський</option>
+            <option>Немишлянський</option>
+            <option>Індустріальний</option>
+            <option>Новобаварський</option>
+        </select>
+      </div>
+
+      <div class="row"><label>Район</label><input id="ObjDistrict" type="text" value="Салтовка"></div>
+      <div class="row"><label>Ориентир</label><input id="ObjOrient" type="text" value="624"></div>
+      <div class="row"><label>Метро</label><input id="ObjMetro" type="text" value="Нет"></div>
+      <div class="row"><label>Улица</label><input id="ObjStreet" type="text" value="Амосова"></div>
+      <div class="row"><label>№ дома</label><input id="ObjHouseNum" type="text" value="5"></div>
+
+      <div class="row"><label>Цена (USD)</label><input id="ObjPrice" type="text" value="48000"></div>
+      <div class="row"><label>Телефон</label><input id="ObjPhone" type="text" value="0501812660"></div>
+
+      <div class="row"><label>Этаж</label><input id="ObjStage" type="number" value="7"></div>
+      <div class="row"><label>Этажей</label><input id="ObjStages" type="number" value="9"></div>
+
+      <div class="row"><label>Планировка</label>
+        <select id="ObjPlan">
+          <option>Раздельная</option>
+          <option>Смежная</option>
+          <option>Студио</option>
+        </select>
+      </div>
+      <div class="row"><label>Состояние</label>
+        <select id="ObjRepair">
+          <option>Кап. ремонт</option>
+          <option>Евроремонт</option>
+          <option>Под чистовую</option>
+          <option>Без ремонта</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Правая колонка -->
+    <div class="card">
+      <div class="row"><label>Материал стен</label>
+        <select id="ObjWalls">
+          <option>кирпич</option>
+          <option>панель</option>
+          <option>монолит</option>
+        </select>
+      </div>
+      <div class="row"><label>Общая площадь</label><input id="ObjSquare" type="text" value="84.5"></div>
+      <div class="row"><label>Жилая площадь</label><input id="ObjLive" type="text" value="44.7"></div>
+      <div class="row"><label>Кухня</label><input id="ObjKitchen" type="text" value="8.1"></div>
+      <div class="row"><label>С/у</label>
+        <select id="ObjWc">
+          <option>совмещённый</option>
+          <option>раздельный</option>
+        </select>
+      </div>
+      <div class="row"><label>Балкон</label>
+        <select id="ObjBalcony">
+          <option>есть</option>
+          <option>нет</option>
+        </select>
+      </div>
+
+      <div class="row"><label>Описание</label>
+        <textarea id="ObjDesc">Просторная квартира в хорошем состоянии...</textarea>
+      </div>
+      <div class="muted">В шаблон пойдут только обязательные поля для OLX.</div>
+    </div>
+  </div>
+
+  <div class="actions">
+    <button id="makeTemplateBtn">Сформировать шаблон для OLX</button>
+  </div>
+
+  <!-- Попап -->
+  <div id="popupTemplate" class="popup">
+    <div class="popup-content">
+      <span class="closeBtn">&times;</span>
+      <h2>Шаблон объявления</h2>
+      <pre id="templateOutput"></pre>
+    </div>
+  </div>
+
+  <script>
+    // Обязательные поля OLX
+    const REQUIRED_FIELDS = [
+      { id: "title",        label: "Заголовок" },
+      { id: "ObjPrice",     label: "Цена" },
+      { id: "ObjType",      label: "Тип объекта" },
+      { id: "ObjRooms",     label: "Количество комнат" },
+      { id: "ObjSquare",    label: "Общая площадь" },
+      { id: "ObjStage",     label: "Этаж" },
+      { id: "ObjStages",    label: "Этажность" },
+      { id: "ObjDesc",      label: "Описание" },
+      { id: "location",     label: "Локация" }
+    ];
+
+    const val = id => document.getElementById(id)?.value?.trim() ?? "";
+
+    document.getElementById("makeTemplateBtn").onclick = function () {
+      const street = val("ObjStreet");
+      const house = val("ObjHouseNum");
+      const rooms = val("ObjRooms");
+
+      // ✅ Новый правильный формат заголовка:
+      const title = `Продам квартиру ${street} ${house}, ${rooms}-комнатная`;
+
+      // ✅ Локация — только административный район
+      const location = val("ObjAdmDistrict");
+
+      const fields = {
+        title,
+        location,
+        ObjPrice: val("ObjPrice"),
+        ObjType: val("ObjType"),
+        ObjRooms: val("ObjRooms"),
+        ObjSquare: val("ObjSquare"),
+        ObjStage: val("ObjStage"),
+        ObjStages: val("ObjStages"),
+        ObjDesc: val("ObjDesc")
+      };
+
+      const lines = [];
+      lines.push("Продажа квартир:");
+      let i = 1;
+      for (const f of REQUIRED_FIELDS) {
+        const v = fields[f.id];
+        if (v) { lines.push(`${i}. ${f.label}: ${v}`); i++; }
+      }
+
+      document.getElementById("templateOutput").innerText = lines.join("\n");
+      document.getElementById("popupTemplate").style.display = "block";
+    };
+
+    document.querySelector("#popupTemplate .closeBtn").onclick = function () {
+      document.getElementById("popupTemplate").style.display = "none";
+    };
+  </script>
+</body>
+</html>
