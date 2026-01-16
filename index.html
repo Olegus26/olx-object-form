@@ -50,19 +50,19 @@
         </select>
       </div>
 
-      <!-- ✅ Адм. район — выпадающий список -->
+      <!-- ✅ Адм. район -->
       <div class="row"><label>Адм. район</label>
         <select id="ObjAdmDistrict">
           <option value="">Выберите район...</option>
-            <option>Шевченківський</option>
-            <option>Салтівський</option>
-            <option>Київський</option>
-            <option>Слобідський</option>
-            <option>Основ'янський</option>
-            <option>Холодногірський</option>
-            <option>Немишлянський</option>
-            <option>Індустріальний</option>
-            <option>Новобаварський</option>
+          <option>Шевченківський</option>
+          <option>Салтівський</option>
+          <option>Київський</option>
+          <option>Слобідський</option>
+          <option>Основ'янський</option>
+          <option>Холодногірський</option>
+          <option>Немишлянський</option>
+          <option>Індустріальний</option>
+          <option>Новобаварський</option>
         </select>
       </div>
 
@@ -106,7 +106,10 @@
       </div>
       <div class="row"><label>Общая площадь</label><input id="ObjSquare" type="text" value="84.5"></div>
       <div class="row"><label>Жилая площадь</label><input id="ObjLive" type="text" value="44.7"></div>
+
+      <!-- ✅ Площадь кухни (у тебя поле уже есть — просто добавили в шаблон) -->
       <div class="row"><label>Кухня</label><input id="ObjKitchen" type="text" value="8.1"></div>
+
       <div class="row"><label>С/у</label>
         <select id="ObjWc">
           <option>совмещённый</option>
@@ -121,7 +124,10 @@
       </div>
 
       <div class="row"><label>Описание</label>
-        <textarea id="ObjDesc">Просторная квартира в хорошем состоянии...</textarea>
+        <textarea id="ObjDesc">Просторная квартира в хорошем состоянии... 🙂👍
+- кухня 8.1 м²
+- рядом метро 🚇
+</textarea>
       </div>
       <div class="muted">В шаблон пойдут только обязательные поля для OLX.</div>
     </div>
@@ -141,17 +147,43 @@
   </div>
 
   <script>
-    // Обязательные поля OLX
+    // ===== Удаление эмодзи, но сохранение переносов/отступов =====
+    function stripEmojisKeepFormatting(text) {
+      // Убираем pictographic-символы (эмодзи) + вариации/соединители.
+      // Переносы строк/пробелы не трогаем => структура сохраняется.
+      try {
+        return text
+          .replace(/[\p{Extended_Pictographic}]/gu, "")
+          .replace(/[\uFE0F\u200D]/g, ""); // variation selector + ZWJ
+      } catch (e) {
+        // Фолбек для старых движков без \p{}:
+        // Удаляем основные диапазоны эмодзи (не идеально, но работает)
+        return text
+          .replace(/[\u{1F300}-\u{1FAFF}]/gu, "")
+          .replace(/[\u{2600}-\u{27BF}]/gu, "")
+          .replace(/[\uFE0F\u200D]/g, "");
+      }
+    }
+
+    // Обязательные поля OLX (+ добавили Адм. район и Кухню)
     const REQUIRED_FIELDS = [
-      { id: "title",        label: "Заголовок" },
-      { id: "ObjPrice",     label: "Цена" },
-      { id: "ObjType",      label: "Тип объекта" },
-      { id: "ObjRooms",     label: "Количество комнат" },
-      { id: "ObjSquare",    label: "Общая площадь" },
-      { id: "ObjStage",     label: "Этаж" },
-      { id: "ObjStages",    label: "Этажность" },
-      { id: "ObjDesc",      label: "Описание" },
-      { id: "location",     label: "Локация" }
+      { id: "title",          label: "Заголовок" },
+      { id: "ObjPrice",       label: "Цена" },
+      { id: "ObjType",        label: "Тип объекта" },
+      { id: "ObjRooms",       label: "Количество комнат" },
+      { id: "ObjSquare",      label: "Общая площадь" },
+
+      // ✅ добавили кухню
+      { id: "ObjKitchen",     label: "Кухня" },
+
+      { id: "ObjStage",       label: "Этаж" },
+      { id: "ObjStages",      label: "Этажность" },
+
+      // ✅ добавили админ район (как отдельное поле в шаблоне)
+      { id: "ObjAdmDistrict", label: "Адм. район" },
+
+      { id: "ObjDesc",        label: "Описание" },
+      { id: "location",       label: "Локация" }
     ];
 
     const val = id => document.getElementById(id)?.value?.trim() ?? "";
@@ -161,11 +193,15 @@
       const house = val("ObjHouseNum");
       const rooms = val("ObjRooms");
 
-      // ✅ Новый правильный формат заголовка:
+      // Заголовок
       const title = `Продам квартиру ${street} ${house}, ${rooms}-комнатная`;
 
-      // ✅ Локация — только административный район
+      // Локация — административный район
       const location = val("ObjAdmDistrict");
+
+      // ✅ Описание без эмодзи, но с сохранением переносов/отступов
+      const descRaw = document.getElementById("ObjDesc")?.value ?? "";
+      const ObjDesc = stripEmojisKeepFormatting(descRaw).trimEnd();
 
       const fields = {
         title,
@@ -174,17 +210,23 @@
         ObjType: val("ObjType"),
         ObjRooms: val("ObjRooms"),
         ObjSquare: val("ObjSquare"),
+        ObjKitchen: val("ObjKitchen"),
         ObjStage: val("ObjStage"),
         ObjStages: val("ObjStages"),
-        ObjDesc: val("ObjDesc")
+        ObjAdmDistrict: val("ObjAdmDistrict"),
+        ObjDesc
       };
 
       const lines = [];
       lines.push("Продажа квартир:");
       let i = 1;
+
       for (const f of REQUIRED_FIELDS) {
         const v = fields[f.id];
-        if (v) { lines.push(`${i}. ${f.label}: ${v}`); i++; }
+        if (v) {
+          lines.push(`${i}. ${f.label}: ${v}`);
+          i++;
+        }
       }
 
       document.getElementById("templateOutput").innerText = lines.join("\n");
