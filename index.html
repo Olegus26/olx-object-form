@@ -1,26 +1,169 @@
 <!DOCTYPE html>
 <html lang="ru">
+
 <head>
   <meta charset="UTF-8" />
   <title>CRM — Объект (OLX)</title>
   <style>
-    body{font-family:Arial,Helvetica,sans-serif;margin:20px;background:#f7f8fa;color:#0f172a}
-    h1{margin:0 0 16px}
-    .grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
-    .card{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:16px}
-    .row{display:grid;grid-template-columns:180px 1fr;align-items:center;gap:10px;margin:6px 0}
-    label{font-size:13px;color:#334155}
-    input,select,textarea{width:100%;padding:8px 10px;border:1px solid #cbd5e1;border-radius:8px;background:#fff}
-    textarea{min-height:80px}
-    .muted{color:#64748b;font-size:12px}
-    .actions{margin-top:16px}
-    button{padding:10px 14px;border:0;border-radius:10px;background:#2563eb;color:#fff;cursor:pointer}
-    .popup{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:1000}
-    .popup-content{background:#fff;width:900px;max-width:92vw;margin:5% auto;padding:20px;border-radius:12px;position:relative;max-height:90%;overflow:auto;white-space:pre-wrap}
-    .closeBtn{position:absolute;top:10px;right:16px;font-size:26px;cursor:pointer}
-    pre{white-space:pre-wrap}
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      margin: 20px;
+      background: #f7f8fa;
+      color: #0f172a;
+    }
+
+    h1 {
+      margin: 0 0 16px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    .card {
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 16px;
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: 180px 1fr;
+      align-items: center;
+      gap: 10px;
+      margin: 6px 0;
+    }
+
+    label {
+      font-size: 13px;
+      color: #334155;
+    }
+
+    input,
+    select,
+    textarea {
+      width: 100%;
+      padding: 8px 10px;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      background: #fff;
+    }
+
+    textarea {
+      min-height: 80px;
+    }
+
+    .muted {
+      color: #64748b;
+      font-size: 12px;
+    }
+
+    .actions {
+      margin-top: 16px;
+    }
+
+    button {
+      padding: 10px 14px;
+      border: 0;
+      border-radius: 10px;
+      background: #2563eb;
+      color: #fff;
+      cursor: pointer;
+    }
+
+    .popup {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, .6);
+      z-index: 1000;
+    }
+
+    .popup-content {
+      background: #fff;
+      width: 1200px;
+      max-width: 95vw;
+      margin: 5% auto;
+      padding: 20px;
+      border-radius: 12px;
+      position: relative;
+      height: 85vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .closeBtn {
+      position: absolute;
+      top: 10px;
+      right: 16px;
+      font-size: 26px;
+      cursor: pointer;
+    }
+    
+    .popup-content h2 {
+      margin-top: 0;
+    }
+
+    .popup-grid {
+      display: grid;
+      grid-template-columns: 1fr 450px;
+      gap: 20px;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    .popup-left {
+      overflow-y: auto;
+      padding-right: 15px;
+    }
+
+    .popup-right {
+      overflow-y: auto;
+      padding: 15px;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+    }
+
+    .olx-field {
+      margin-bottom: 12px;
+    }
+    .olx-field label.title {
+      display: block;
+      font-weight: bold;
+      margin-bottom: 6px;
+      font-size: 13px;
+      color: #1e293b;
+    }
+    .olx-checkboxes {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+    }
+    .olx-checkboxes label {
+      display: flex;
+      align-items: flex-start;
+      gap: 6px;
+      font-size: 12px;
+      cursor: pointer;
+    }
+    .olx-checkboxes input {
+      width: auto;
+      margin-top: 2px;
+    }
+
+    pre {
+      white-space: pre-wrap;
+      font-size: 14px;
+      font-family: monospace;
+      line-height: 1.5;
+    }
   </style>
 </head>
+
 <body>
   <h1>Форма объекта (под OLX)</h1>
 
@@ -142,22 +285,30 @@
     <div class="popup-content">
       <span class="closeBtn">&times;</span>
       <h2>Шаблон объявления</h2>
-      <pre id="templateOutput"></pre>
+      
+      <div class="popup-grid">
+        <!-- Левая часть с текстом -->
+        <div class="popup-left">
+          <pre id="templateOutput"></pre>
+        </div>
+        
+        <!-- Правая часть с формой полей OLX -->
+        <div class="popup-right" id="olxExtraForm">
+          <!-- Сюда JS внедрит поля -->
+        </div>
+      </div>
+      
     </div>
   </div>
 
   <script>
     // ===== Удаление эмодзи, но сохранение переносов/отступов =====
     function stripEmojisKeepFormatting(text) {
-      // Убираем pictographic-символы (эмодзи) + вариации/соединители.
-      // Переносы строк/пробелы не трогаем => структура сохраняется.
       try {
         return text
           .replace(/[\p{Extended_Pictographic}]/gu, "")
-          .replace(/[\uFE0F\u200D]/g, ""); // variation selector + ZWJ
+          .replace(/[\uFE0F\u200D]/g, ""); 
       } catch (e) {
-        // Фолбек для старых движков без \p{}:
-        // Удаляем основные диапазоны эмодзи (не идеально, но работает)
         return text
           .replace(/[\u{1F300}-\u{1FAFF}]/gu, "")
           .replace(/[\u{2600}-\u{27BF}]/gu, "")
@@ -165,71 +316,121 @@
       }
     }
 
-    // Обязательные поля OLX (+ добавили Адм. район и Кухню)
-    const REQUIRED_FIELDS = [
-      { id: "title",          label: "Заголовок" },
-      { id: "ObjPrice",       label: "Цена" },
-      { id: "ObjType",        label: "Тип объекта" },
-      { id: "ObjRooms",       label: "Количество комнат" },
-      { id: "ObjSquare",      label: "Общая площадь" },
+    // ===== Данные для полей OLX (Правая колонка) =====
+    const olxData = {
+      houseType: { title: "5. Тип дома", type: "select", options: ["Царский дом", "Сталинка", "Хрущевка", "Чешка", "Гостинка", "Совмин", "Общежитие", "Жилой фонд 80-90-е", "Жилой фонд 91-2000-е", "Жилой фонд 2001-2010-е", "Жилой фонд от 2011 г.", "На этапе строительства"] },
+      wallType: { title: "10. Тип стен", type: "select", options: ["Кирпичный", "Панельный", "Монолитный", "Шлакоблочный", "Газоблок", "СИП панель", "Другое"] },
+      houseClass: { title: "11. Класс жилья", type: "select", options: ["Эконом", "Комфорт", "Бизнес", "Элит"] },
+      layout: { title: "13. Планировка", type: "select", options: ["Смежная, проходная", "Раздельная", "Студия", "Пентхаус", "Многоуровневая", "Малосемейка, гостинка", "Смарт-квартира", "Свободная планировка", "Двухсторонняя"] },
+      bathroom: { title: "14. Санузел", type: "select", options: ["Раздельный", "Смежный", "2 и более", "Санузел отсутствует"] },
+      heating: { title: "15. Отопление", type: "select", options: ["Централизованное", "Собственная котельная", "Индивидуальное газовое", "Индивидуальное электро", "Твердотоплевное", "Тепловой насос", "Комбинированное", "Другое"] },
+      renovation: { title: "16. Ремонт", type: "select", options: ["Авторский проект", "Евроремонт", "Косметический ремонт", "Жилое состояние", "После строителей", "Под чистовую отделку", "Аварийное состояние"] },
+      furnishing: { title: "17. Меблирование", type: "select", options: ["Да", "Нет"] },
+      appliances: { title: "18. Бытовая техника", type: "checkbox", options: ["Плита", "Варочная панель", "Духовой шкаф", "Микроволновая печь", "Холодильник", "Посудомоечная машина", "Стиральная машина", "Сушильная машина", "Без бытовой техники"] },
+      multimedia: { title: "19. Мультимедиа", type: "checkbox", options: ["Wi-Fi", "Скоростной интернет", "Телевизор", "Кабельное, цифровое ТВ", "Спутниковое ТВ", "Без мультимедиа"] },
+      comfort: { title: "20. Комфорт", type: "checkbox", options: ["Кондиционер", "Подогрев полов", "Ванна", "Душевая кабина", "Мебель на кухне", "Гардероб", "Балкон, лоджия", "Терраса", "Панорамные окна", "Решетки на окнах", "Сигнализация", "Пожарная сигнализация", "Видеонаблюдение", "Консьерж", "Охраняемая территория", "Парковочное место", "Гостевой паркинг", "Подземный паркинг", "Гараж", "Лифт", "Грузовой лифт", "Хоз. помещение, кладовка", "Технология «умный дом»", "Автономный электрогенератор"] },
+      communications: { title: "21. Коммуникации", type: "checkbox", options: ["Газ", "Центральный водопровод", "Электричество", "Центральная канализация", "Вывоз отходов", "Асфальтированная дорога", "Без коммуникаций"] },
+      infrastructure: { title: "22. Инфраструктура (до 500 метров)", type: "checkbox", options: ["Детский сад", "Школа", "Бювет", "Остановка транспорта", "Метро", "Рынок", "Магазин, киоск", "Супермаркет, ТРЦ", "Парк, зелёная зона", "Детская площадка", "Аптека", "Больница, поликлиника", "Центр города", "Ресторан, кафе", "Кинотеатр, театр", "Отделение почты", "Отделение банка, банкомат", "Автовокзал", "ЖД станция"] },
+      landscape: { title: "23. Ландшафт (до 1 км.)", type: "checkbox", options: ["Река", "Водохранилище", "Озеро", "Море", "Острова", "Холмы", "Горы", "Парк", "Лес"] }
+    };
 
-      // ✅ добавили кухню
-      { id: "ObjKitchen",     label: "Кухня" },
+    const extraForm = document.getElementById("olxExtraForm");
+    
+    // 1. Префикс заголовка
+    const prefixDiv = document.createElement("div");
+    prefixDiv.className = "olx-field";
+    prefixDiv.innerHTML = `<label class="title">1. Префикс заголовка</label><input type="text" id="olxPrefix" placeholder="Например: S4 " oninput="updateOLXTemplate()">`;
+    extraForm.appendChild(prefixDiv);
 
-      { id: "ObjStage",       label: "Этаж" },
-      { id: "ObjStages",      label: "Этажность" },
-
-      // ✅ добавили админ район (как отдельное поле в шаблоне)
-      { id: "ObjAdmDistrict", label: "Адм. район" },
-
-      { id: "ObjDesc",        label: "Описание" },
-   
-    ];
+    // Генерируем чекбоксы и селекты для остальных полей
+    Object.keys(olxData).forEach(key => {
+      const field = olxData[key];
+      const div = document.createElement("div");
+      div.className = "olx-field";
+      div.innerHTML = `<label class="title">${field.title}</label>`;
+      
+      if (field.type === "select") {
+        const select = document.createElement("select");
+        select.id = "olx_" + key;
+        select.onchange = updateOLXTemplate;
+        select.innerHTML = `<option value="">Выберите...</option>` + field.options.map(o => `<option value="${o}">${o}</option>`).join("");
+        div.appendChild(select);
+      } else if (field.type === "checkbox") {
+        const grid = document.createElement("div");
+        grid.className = "olx-checkboxes";
+        field.options.forEach(o => {
+          const lbl = document.createElement("label");
+          lbl.innerHTML = `<input type="checkbox" name="olx_${key}" value="${o}" onchange="updateOLXTemplate()"> ${o}`;
+          grid.appendChild(lbl);
+        });
+        div.appendChild(grid);
+      }
+      extraForm.appendChild(div);
+    });
 
     const val = id => document.getElementById(id)?.value?.trim() ?? "";
 
-    document.getElementById("makeTemplateBtn").onclick = function () {
+    function getCheckedValues(name) {
+      return Array.from(document.querySelectorAll(`input[name="${name}"]:checked`)).map(cb => cb.value).join(", ");
+    }
+
+    function updateOLXTemplate() {
       const street = val("ObjStreet");
       const house = val("ObjHouseNum");
       const rooms = val("ObjRooms");
-
-      // Заголовок
-      const title = `Продам квартиру ${street} ${house}, ${rooms}-комнатная`;
-
-      // Локация — административный район
-      const location = val("ObjAdmDistrict");
-
-      // ✅ Описание без эмодзи, но с сохранением переносов/отступов
+      
+      const prefix = val("olxPrefix");
+      const title = `${prefix ? prefix + ' ' : ''}Продам квартиру ${street} ${house}, ${rooms}-комнатная`;
+      
       const descRaw = document.getElementById("ObjDesc")?.value ?? "";
       const ObjDesc = stripEmojisKeepFormatting(descRaw).trimEnd();
 
-      const fields = {
-        title,
-        location,
-        ObjPrice: val("ObjPrice"),
-        ObjType: val("ObjType"),
-        ObjRooms: val("ObjRooms"),
-        ObjSquare: val("ObjSquare"),
-        ObjKitchen: val("ObjKitchen"),
-        ObjStage: val("ObjStage"),
-        ObjStages: val("ObjStages"),
-        ObjAdmDistrict: val("ObjAdmDistrict"),
-        ObjDesc
-      };
-
       const lines = [];
-      lines.push("Продажа квартир:");
-      let i = 1;
-
-      for (const f of REQUIRED_FIELDS) {
-        const v = fields[f.id];
-        if (v) {
-          lines.push(`${i}. ${f.label}: ${v}`);
-          i++;
-        }
-      }
+      lines.push(`1. Заголовок: ${title}`);
+      lines.push(`2. Рубрика: Недвижимость - квартиры, комнаты - продажа квартир, комнат.`);
+      lines.push(`3. Цена: ${val("ObjPrice")}`);
+      lines.push(`4. Тип объекта: ${val("ObjType")}`);
+      lines.push(`5. Тип дома: ${val("olx_houseType") || ""}`);
+      lines.push(`6. Этаж: ${val("ObjStage")}`);
+      lines.push(`7. Этажность: ${val("ObjStages")}`);
+      lines.push(`8. Общая площадь: ${val("ObjSquare")}`);
+      lines.push(`9. Площадь кухни: ${val("ObjKitchen")}`);
+      lines.push(`10. Тип стен: ${val("olx_wallType") || ""}`);
+      lines.push(`11. Класс жилья: ${val("olx_houseClass") || ""}`);
+      lines.push(`12. Количество комнат: ${val("ObjRooms")}`);
+      lines.push(`13. Планировка: ${val("olx_layout") || ""}`);
+      lines.push(`14. Санузел: ${val("olx_bathroom") || ""}`);
+      lines.push(`15. Отопление: ${val("olx_heating") || ""}`);
+      lines.push(`16. Ремонт: ${val("olx_renovation") || ""}`);
+      lines.push(`17. Меблирование: ${val("olx_furnishing") || ""}`);
+      
+      const appliances = getCheckedValues("olx_appliances");
+      lines.push(`18. Бытовая техника: ${appliances || ""}`);
+      
+      const multimedia = getCheckedValues("olx_multimedia");
+      lines.push(`19. Мультимедиа: ${multimedia || ""}`);
+      
+      const comfort = getCheckedValues("olx_comfort");
+      lines.push(`20. Комфорт: ${comfort || ""}`);
+      
+      const communications = getCheckedValues("olx_communications");
+      lines.push(`21. Коммуникации: ${communications || ""}`);
+      
+      const infrastructure = getCheckedValues("olx_infrastructure");
+      lines.push(`22. Инфраструктура (до 500 метров): ${infrastructure || ""}`);
+      
+      const landscape = getCheckedValues("olx_landscape");
+      lines.push(`23. Ландшафт (до 1 км.): ${landscape || ""}`);
+      
+      lines.push(`24. Описание:\n${ObjDesc}`);
+      lines.push(`25. Месторасположение объекта: ${val("ObjAdmDistrict") || val("ObjCity")}`);
+      lines.push(`26. Номер Вашего телефона: ${val("ObjPhone")}`);
 
       document.getElementById("templateOutput").innerText = lines.join("\n");
+    }
+
+    document.getElementById("makeTemplateBtn").onclick = function () {
+      updateOLXTemplate(); // Первичная генерация
       document.getElementById("popupTemplate").style.display = "block";
     };
 
@@ -238,4 +439,5 @@
     };
   </script>
 </body>
+
 </html>
